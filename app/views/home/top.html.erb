@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+</head>
+
+<body>
+    <div class = "top-main">
+        <div class = "top-title">
+            <h1>Check a porker hand</h1>
+        </div>
+        <div class = "top-input">
+            <%= form_tag("/home/judge", method:"get") do %>
+                <input name="hand"></input>
+                <input type="submit" value="check"></input>
+            <% end %>
+        </div>
+        
+        <% if flash[:notice] %>
+        <div class = "top-return">
+            <%= flash[:notice] %>
+        </div>
+        <% end %>
+    </div>
+</body>
+
+</html>
