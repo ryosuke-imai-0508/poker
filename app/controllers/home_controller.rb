@@ -8,11 +8,14 @@ class HomeController < ApplicationController
   #入力されたものを配列に
   @hand = params[:hand].split.sort_by {|k| k[/\d+/].to_i}
   
-      #条件ここから    
-      if ( (@hand.size.to_i == 5) && 
-           
-      #配列の要素を取り出して名前をつける
-        ( self.class.const_set(:A1,@hand[0].slice(0))
+    if (@hand.size.to_i != 5)
+        flash[:notice] = "5つのカード指定文字を半角スペース区切りで入力してください。<br>・スペード：S<br>・ダイヤ：D<br>・ハート：H<br>・クローバー：C<br>・数字：1~13<br>(例)S1 H3 D9 C13 S11" + "い"
+        render("home/top") 
+    end
+  
+  #配列の要素を取り出して名前をつける
+        ( 
+          self.class.const_set(:A1,@hand[0].slice(0))
           self.class.const_set(:N1,@hand[0].gsub(/[^\d]/, "").to_i) 
           self.class.const_set(:A2,@hand[1].slice(0))
           self.class.const_set(:N2,@hand[1].gsub(/[^\d]/, "").to_i) 
@@ -24,92 +27,100 @@ class HomeController < ApplicationController
           self.class.const_set(:N5,@hand[4].gsub(/[^\d]/, "").to_i) 
           
           hand_check = ["#{A1}"+"#{N1}","#{A2}"+"#{N2}","#{A3}"+"#{N3}","#{A4}"+"#{N4}","#{A5}"+"#{N5}"] 
-        )      
-        
-      (hand_check == @hand) &&
+          
+          hand_suits = ["#{A1}","#{A2}","#{A3}","#{A4}","#{A5}"]
+          
+          hand_numbers = ["#{N1}","#{N2}","#{N3}","#{N4}","#{N5}"]
+        )        
+
+    if hand_suits.grep(/[^SDHC]/).present?
+        hand_suits.each_with_index do |s,inx_s|
+        if s != "H" && s != "D" && s != "C" && s != "S"
+               flash[:notice] == "#{inx_s + 1}番目のカードのスートが不正です。(#{@card[inx_s]})"
+        end
+    end
       
-       ("#{A1}"+"#{N1}" != "#{A2}"+"#{N2}") &&
-       ("#{A2}"+"#{N2}" != "#{A3}"+"#{N3}") &&
-       ("#{A3}"+"#{N3}" != "#{A4}"+"#{N4}") &&
-       ("#{A4}"+"#{N4}" != "#{A5}"+"#{N5}") &&
+    if hand_numbers.select{ |n| n != 1 && n != 2 && n != 3 && n != 4 && n != 5 && n != 6 && n != 7 && n != 8 && n != 9 && n != 10 && n != 11 && n != 12 && n != 13 }.present?
+        hand_numbers.each_with_index do |n,inx_n|
+        if n != 1 && n != 2 && n != 3 && n != 4 && n != 5 && n != 6 && n != 7 && n != 8 && n != 9 && n != 10 && n != 11 && n != 12 && n != 13
+                flash[:notice] == "#{inx_n + 1}番目のカードの数字が不正です。(#{@card[inx_n]})"
+        end
+    end
      
-      ((A1=="S") || (A1=="D") || (A1=="H") || (A1=="C")) &&
-      ((A2=="S") || (A2=="D") || (A2=="H") || (A2=="C")) &&
-      ((A3=="S") || (A3=="D") || (A3=="H") || (A3=="C")) &&
-      ((A4=="S") || (A4=="D") || (A4=="H") || (A4=="C")) &&
-      ((A5=="S") || (A5=="D") || (A5=="H") || (A5=="C")) &&
-      
-      (1..13)===N1 && (1..13)===N2 && (1..13)===N3 && (1..13)===N4 && (1..13)===N5
-      
-        ) 
+    if (("#{A1}"+"#{N1}" == "#{A2}"+"#{N2}") ||
+       ("#{A2}"+"#{N2}" == "#{A3}"+"#{N3}") ||
+       ("#{A3}"+"#{N3}" == "#{A4}"+"#{N4}") ||
+       ("#{A4}"+"#{N4}" == "#{A5}"+"#{N5}"))
+        flash[:notice] = "カードが重複しています"
+        render("home/top")
+    end
+        
+    unless(hand_check == @hand) 
+        flash[:notice] = "5つのカード指定文字を半角スペース区切りで入力してください。<br>・スペード：S<br>・ダイヤ：D<br>・ハート：H<br>・クローバー：C<br>・数字：1~13<br>(例)S1 H3 D9 C13 S11" + "あ"
+        render("home/top")
+    end
       #条件ここまで
       
             #ストレートフラッシュの判定
-            if ((A1==A2) && (A2==A3) && (A3==A4) && (A4==A5)) &&
-               (((N1==N2-1) && (N1==N3-2) && (N1==N4-3) && (N1==N5-4)) ||
-               ((N1==1) && (N2==10) && (N3==11) && (N4==12) && (N5==13)) ||
-               ((N1==1) && (N2==2) && (N3==11) && (N4==12) && (N5==13)) ||
-               ((N1==1) && (N2==2) && (N3==3) && (N4==12) && (N5==13)) ||
-               ((N1==1) && (N2==2) && (N3==3) && (N4==4) && (N5==13))) 
-                flash[:notice] = "ストレートフラッシュ"
-                render("home/top")
+    if  ((A1==A2) && (A2==A3) && (A3==A4) && (A4==A5)) &&
+        (((N1==N2-1) && (N1==N3-2) && (N1==N4-3) && (N1==N5-4)) ||
+        ((N1==1) && (N2==10) && (N3==11) && (N4==12) && (N5==13)) ||
+        ((N1==1) && (N2==2) && (N3==11) && (N4==12) && (N5==13)) ||
+        ((N1==1) && (N2==2) && (N3==3) && (N4==12) && (N5==13)) ||
+        ((N1==1) && (N2==2) && (N3==3) && (N4==4) && (N5==13))) 
+            flash[:notice] = "ストレートフラッシュ"
+            render("home/top")
                 
             #フォーカードの判定
-            elsif (((N1==N2) && (N2==N3) && (N3==N4)) ||
-                  ((N2==N3) && (N3==N4) && (N4==N5)))
-                flash[:notice] = "フォーカード"
-                render("home/top")
+    elsif (((N1==N2) && (N2==N3) && (N3==N4)) ||
+          ((N2==N3) && (N3==N4) && (N4==N5)))
+            flash[:notice] = "フォーカード"
+            render("home/top")
             
             #フルハウスの判定
-            elsif (((N1==N2) && (N2==N3) && (N4==N5)) ||
-                  ((N1==N2 && N3==N4 && N4==N5)))
-                flash[:notice] = "フルハウス"
-                render("home/top")
+    elsif (((N1==N2) && (N2==N3) && (N4==N5)) ||
+          ((N1==N2 && N3==N4 && N4==N5)))
+            flash[:notice] = "フルハウス"
+            render("home/top")
             
             #フラッシュの判定
-            elsif ((A1==A2) && (A2==A3) && (A3==A4) && (A4==A5))
-                flash[:notice] = "フラッシュ"
-                render("home/top")
+    elsif ((A1==A2) && (A2==A3) && (A3==A4) && (A4==A5))
+            flash[:notice] = "フラッシュ"
+            render("home/top")
             
             #ストレートの判定
-            elsif ((N2==N1+1) && (N3==N1+2) && (N4==N1+3) && (N5==N1+4)) ||
-                  ((N1==1) && (N2==10) && (N3==11) && (N4==12) && (N5==13)) ||
-                  ((N1==1) && (N2==2) && (N3==11) && (N4==12) && (N5==13)) ||
-                  ((N1==1) && (N2==2) && (N3==3) && (N4==12) && (N5==13)) ||
-               ((N1==1) && (N2==2) && (N3==3) && (N4==4) && (N5==13)) 
-                flash[:notice] = "ストレート"
-                render("home/top")
+    elsif ((N2==N1+1) && (N3==N1+2) && (N4==N1+3) && (N5==N1+4)) ||
+          ((N1==1) && (N2==10) && (N3==11) && (N4==12) && (N5==13)) ||
+          ((N1==1) && (N2==2) && (N3==11) && (N4==12) && (N5==13)) ||
+          ((N1==1) && (N2==2) && (N3==3) && (N4==12) && (N5==13)) ||
+          ((N1==1) && (N2==2) && (N3==3) && (N4==4) && (N5==13)) 
+            flash[:notice] = "ストレート"
+            render("home/top")
                 
             #スリーカードの判定
-            elsif (((N1==N2) && (N2==N3)) ||
-                  ((N2==N3) && (N3==N4)) ||
-                  ((N3==N4) && (N4==N5)))
-                flash[:notice] = "スリーカード"
-                render("home/top")
+    elsif (((N1==N2) && (N2==N3)) ||
+          ((N2==N3) && (N3==N4)) ||
+          ((N3==N4) && (N4==N5)))
+            flash[:notice] = "スリーカード"
+            render("home/top")
                 
             #ツーペアの判定
-            elsif (((N1==N2) && (N3==N4)) ||
-                  ((N1==N2) && (N4==N5)) ||
-                  ((N2==N3) && (N4==N5)))
-                flash[:notice] = "ツーペア"
-                render("home/top")
+    elsif (((N1==N2) && (N3==N4)) ||
+          ((N1==N2) && (N4==N5)) ||
+          ((N2==N3) && (N4==N5)))
+            flash[:notice] = "ツーペア"
+            render("home/top")
                 
             #ワンペアの判定
-            elsif ((N1==N2) || (N2==N3) || (N3==N4) || (N4==N5))
-                flash[:notice] = "ワンペア"
-                render("home/top")
+    elsif ((N1==N2) || (N2==N3) || (N3==N4) || (N4==N5))
+            flash[:notice] = "ワンペア"
+            render("home/top")
                 
-            else
-                flash[:notice] = "ハイカード"
-                render("home/top")
-            end
-            
-      else
-        flash[:notice] = "5つのカード指定文字を半角スペース区切りで入力してください。<br>・スペード：S<br>・ダイヤ：D<br>・ハート：H<br>・クローバー：C<br>・数字：1~13<br>(例)S1 H3 D9 C13 S11"
-        render("home/top")
-      end
-        
-        
-  end
-  
-end
+    else
+            flash[:notice] = "ハイカード"
+            render("home/top")
+    end
+ 
+ end
+ 
+ 
