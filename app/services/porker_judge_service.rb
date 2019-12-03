@@ -68,8 +68,16 @@ attr_accessor :hand_array, :cards, :hands, :error_message, :result, :error_messa
           end
       
 #   重複がないか
-          if (("#{A1}"+"#{N1}" == "#{A2}"+"#{N2}") || ("#{A2}"+"#{N2}" == "#{A3}"+"#{N3}") || ("#{A3}"+"#{N3}" == "#{A4}"+"#{N4}") || ("#{A4}"+"#{N4}" == "#{A5}"+"#{N5}"))
-            @error_message8 = "カードが重複しています"
+          if (("#{A1}"+"#{N1}" == "#{A2}"+"#{N2}") || ("#{A2}"+"#{N2}" == "#{A3}"+"#{N3}") || ("#{A3}"+"#{N3}" == "#{A4}"+"#{N4}") || ("#{A4}"+"#{N4}" == "#{A5}"+"#{N5}")) &&
+             @error_message1.blank? &&
+             @error_message2.blank? &&
+             @error_message3.blank? &&
+             @error_message4.blank? &&
+             @error_message5.blank? &&
+             @error_message6.blank? &&
+             @error_message7.blank? 
+             
+            @error_message8 = "カードがしています"
              @error_messages.push(@error_message8)
           end
       
