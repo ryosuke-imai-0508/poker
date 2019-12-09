@@ -10,15 +10,13 @@ include PorkerJudgeService
     @cards = params[:hand]
     @hands = JudgeHands.new(@cards)
         
-    @hands.execute
-    if @hands.error_messages
-        flash[:notice] = @hands.error_messages
-        render("home/top")
-    else
-        @results = @hands.result
-        render("home/top")
-    end
-  
+    @hands.valid
+        if @hands.error_messages.present?
+            render("home/top")
+        else
+            @hands.execute
+            render("home/top")
+        end
   end
   
 end
